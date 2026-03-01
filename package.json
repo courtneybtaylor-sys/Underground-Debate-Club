@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "description": "Underground Debate Club - Multi-surface debate platform with AI scoring",
   "scripts": {
-    "build": "npm run build:ui && npm run build:functions",
-    "build:ui": "cp -r public .",
+    "build": "npm run build:functions",
     "build:functions": "netlify functions:build",
     "dev": "netlify dev",
-    "start": "node server.js"
+    "start": "netlify dev"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.3",
