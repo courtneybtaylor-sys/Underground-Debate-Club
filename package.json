@@ -1,0 +1,18 @@
+{
+  "name": "underground-debate-club",
+  "version": "1.0.0",
+  "description": "A platform for debate and discussion",
+  "type": "module",
+  "scripts": {
+    "build:ui": "tsc src/ui/index.ts --outDir dist --declaration",
+    "build": "npm run build:ui",
+    "dev": "node api/debate.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "anthropic": "^0.24.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
