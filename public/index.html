@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Underground Debate Club</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      padding: 40px 0 20px;
+      border-bottom: 2px solid #e94560;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      color: #e94560;
+    }
+
+    .subtitle {
+      font-size: 1.1em;
+      color: #aaa;
+    }
+
+    .nav-menu {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .nav-btn {
+      padding: 12px 20px;
+      background: #0f3460;
+      color: #fff;
+      border: 2px solid #e94560;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.3s;
+    }
+
+    .nav-btn:hover {
+      background: #e94560;
+      transform: translateY(-2px);
+    }
+
+    .nav-btn.active {
+      background: #e94560;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.3s;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .card {
+      background: #0f3460;
+      border: 1px solid #e94560;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 1.8em;
+      color: #e94560;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #aaa;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      background: #1a1a2e;
+      border: 1px solid #444;
+      color: #fff;
+      border-radius: 4px;
+      font-family: inherit;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #e94560;
+      box-shadow: 0 0 10px rgba(233, 69, 96, 0.3);
+    }
+
+    button {
+      padding: 12px 25px;
+      background: #e94560;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #d63447;
+    }
+
+    button:disabled {
+      background: #666;
+      cursor: not-allowed;
+    }
+
+    .debate-topic {
+      margin-bottom: 25px;
+    }
+
+    .argument-box {
+      background: #1a1a2e;
+      padding: 15px;
+      border-left: 4px solid #e94560;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+
+    .status.success {
+      background: #2d5a3d;
+      color: #90ee90;
+    }
+
+    .status.error {
+      background: #5a2d2d;
+      color: #ff9999;
+    }
+
+    .status.loading {
+      background: #3d4a5a;
+      color: #87ceeb;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .user-profile {
+      text-align: center;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .stat-item {
+      background: #1a1a2e;
+      padding: 15px;
+      border-radius: 4px;
+      border: 1px solid #444;
+    }
+
+    .stat-label {
+      color: #aaa;
+      font-size: 0.9em;
+    }
+
+    .stat-value {
+      font-size: 1.8em;
+      color: #e94560;
+      font-weight: bold;
+    }
+
+    .oracle-response {
+      background: #1a1a2e;
+      border-left: 4px solid #00d4ff;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+      font-style: italic;
+    }
+
+    .member-list {
+      list-style: none;
+    }
+
+    .member-item {
+      background: #1a1a2e;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 4px;
+      border-left: 3px solid #e94560;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #e94560;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚔️ Underground Debate Club</h1>
+      <p class="subtitle">Where ideas clash and minds clash</p>
+    </header>
+
+    <div class="nav-menu">
+      <button class="nav-btn active" onclick="showScreen('home')">Home</button>
+      <button class="nav-btn" onclick="showScreen('lobby')">Lobby</button>
+      <button class="nav-btn" onclick="showScreen('cabinet')">Cabinet</button>
+      <button class="nav-btn" onclick="showScreen('battle')">Battle</button>
+      <button class="nav-btn" onclick="showScreen('results')">Results</button>
+      <button class="nav-btn" onclick="showScreen('profile')">Profile</button>
+      <button class="nav-btn" onclick="showScreen('oracle')">Oracle</button>
+      <button class="nav-btn" onclick="showScreen('underground')">Underground</button>
+      <button class="nav-btn" onclick="showScreen('school')">School</button>
+    </div>
+
+    <!-- Home Screen -->
+    <div id="home" class="screen active">
+      <div class="card">
+        <h2 class="section-title">Welcome to Underground Debate Club</h2>
+        <p>Join the most intense debate platform on the web. Challenge opponents, sharpen your arguments, and prove your intellectual prowess.</p>
+        <div style="margin-top: 20px;">
+          <h3>Quick Start</h3>
+          <ul style="margin-left: 20px; margin-top: 10px;">
+            <li>Join or create a debate in the Lobby</li>
+            <li>Prepare your arguments in the Cabinet</li>
+            <li>Engage in real-time battle with opponents</li>
+            <li>Review your performance in Results</li>
+            <li>Get insights from the Oracle AI</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lobby Screen -->
+    <div id="lobby" class="screen">
+      <div class="card">
+        <h2 class="section-title">Debate Lobby</h2>
+        <div class="form-group">
+          <label>Create New Debate</label>
+          <textarea placeholder="Enter debate topic..." rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Your Position</label>
+          <select>
+            <option>For</option>
+            <option>Against</option>
+            <option>Neutral</option>
+          </select>
+        </div>
+        <button onclick="createDebate()">Create Debate</button>
+        <div id="debateStatus"></div>
+      </div>
+
+      <div class="card">
+        <h2 style="color: #e94560; margin-bottom: 15px;">Active Debates</h2>
+        <div class="member-list">
+          <div class="member-item">
+            <span>Is AI a threat to humanity?</span>
+            <span class="badge">3 participants</span>
+          </div>
+          <div class="member-item">
+            <span>Should space exploration be privatized?</span>
+            <span class="badge">2 participants</span>
+          </div>
+          <div class="member-item">
+            <span>Does free will exist?</span>
+            <span class="badge">4 participants</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cabinet Screen -->
+    <div id="cabinet" class="screen">
+      <div class="card">
+        <h2 class="section-title">Argument Cabinet</h2>
+        <div class="form-group">
+          <label>Debate Topic</label>
+          <input type="text" placeholder="Enter topic..." id="topicInput">
+        </div>
+        <div class="form-group">
+          <label>Your Position</label>
+          <select id="positionSelect">
+            <option>For</option>
+            <option>Against</option>
+          </select>
+        </div>
+        <button onclick="generateArgument()">Generate Argument</button>
+        <div id="argumentStatus"></div>
+        <div id="generatedArgument"></div>
+      </div>
+    </div>
+
+    <!-- Battle Screen -->
+    <div id="battle" class="screen">
+      <div class="card">
+        <h2 class="section-title">Live Debate Battle</h2>
+        <div class="debate-topic">
+          <h3>Current Topic: Artificial Intelligence & Society</h3>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div>
+            <h4 style="color: #e94560; margin-bottom: 10px;">Your Arguments</h4>
+            <div class="argument-box">
+              <strong>Position: FOR</strong>
+              <p style="margin-top: 10px;">AI can solve complex problems and improve human life...</p>
+            </div>
+          </div>
+          <div>
+            <h4 style="color: #00d4ff; margin-bottom: 10px;">Opponent Arguments</h4>
+            <div class="argument-box">
+              <strong>Position: AGAINST</strong>
+              <p style="margin-top: 10px;">AI poses existential risks and job displacement...</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <label>Your Response</label>
+          <textarea placeholder="Type your rebuttal..." rows="4"></textarea>
+          <button style="margin-top: 10px;">Submit Response</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results" class="screen">
+      <div class="card">
+        <h2 class="section-title">Debate Results</h2>
+        <div class="stats">
+          <div class="stat-item">
+            <div class="stat-label">Total Debates</div>
+            <div class="stat-value">12</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Wins</div>
+            <div class="stat-value">8</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Win Rate</div>
+            <div class="stat-value">67%</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">Rating</div>
+            <div class="stat-value">1850</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="color: #e94560; margin-bottom: 15px;">Recent Debates</h2>
+        <div class="member-list">
+          <div class="member-item">
+            <span>AI & Society</span>
+            <span class="badge" style="background: #2d5a3d;">Won</span>
+          </div>
+          <div class="member-item">
+            <span>Climate Action</span>
+            <span class="badge" style="background: #2d5a3d;">Won</span>
+          </div>
+          <div class="member-item">
+            <span>Universal Basic Income</span>
+            <span class="badge" style="background: #5a2d2d;">Lost</span>
+          </div>
+          <div class="member-item">
+            <span>Space Exploration</span>
+            <span class="badge" style="background: #2d5a3d;">Won</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Screen -->
+    <div id="profile" class="screen">
+      <div class="card">
+        <h2 class="section-title">My Profile</h2>
+        <div class="user-profile">
+          <div style="width: 80px; height: 80px; background: #e94560; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 2em;">👤</div>
+          <h3>Debate Master</h3>
+          <p style="color: #aaa; margin-bottom: 20px;">@debatemaster</p>
+
+          <div class="stats">
+            <div class="stat-item">
+              <div class="stat-label">Debates</div>
+              <div class="stat-value">47</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Wins</div>
+              <div class="stat-value">32</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Followers</div>
+              <div class="stat-value">158</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Following</div>
+              <div class="stat-value">42</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 20px;">
+            <h4 style="color: #e94560; margin-bottom: 10px;">Specialties</h4>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+              <span class="badge">Politics</span>
+              <span class="badge">Philosophy</span>
+              <span class="badge">Technology</span>
+              <span class="badge">Economics</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Oracle Screen -->
+    <div id="oracle" class="screen">
+      <div class="card">
+        <h2 class="section-title">Oracle AI Insights</h2>
+        <div class="form-group">
+          <label>Ask the Oracle</label>
+          <textarea placeholder="Ask for debate insights, strategy tips, or feedback..." rows="4"></textarea>
+        </div>
+        <button onclick="askOracle()">Get Insight</button>
+        <div id="oracleStatus"></div>
+        <div id="oracleResponse"></div>
+      </div>
+
+      <div class="card">
+        <h2 style="color: #00d4ff; margin-bottom: 15px;">Previous Insights</h2>
+        <div class="oracle-response">
+          To strengthen your arguments, focus on providing concrete evidence and logical structure. Use the Toulmin model: claim, grounds, warrant.
+        </div>
+        <div class="oracle-response">
+          Your recent debate showed strong rebuttals. Consider adding more counterexamples to preempt opponent arguments.
+        </div>
+        <div class="oracle-response">
+          Emotional appeals work, but pair them with rational arguments for maximum persuasiveness in competitive debate.
+        </div>
+      </div>
+    </div>
+
+    <!-- Underground Screen -->
+    <div id="underground" class="screen">
+      <div class="card">
+        <h2 class="section-title">Underground Network</h2>
+        <p>Secret debates and exclusive discussions for elite debaters.</p>
+
+        <div style="margin-top: 20px;">
+          <h3>Active Underground Sessions</h3>
+          <div class="member-list">
+            <div class="member-item">
+              <span>⚡ Flash Round: Future of Work</span>
+              <span class="badge" style="background: #00d4ff;">Invite Only</span>
+            </div>
+            <div class="member-item">
+              <span>🔥 Controversial Topics</span>
+              <span class="badge" style="background: #00d4ff;">Restricted</span>
+            </div>
+            <div class="member-item">
+              <span>💎 Master Class</span>
+              <span class="badge" style="background: #00d4ff;">Elite</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <label>Request Underground Access</label>
+          <textarea placeholder="Why should you be invited to the underground network?" rows="3"></textarea>
+          <button style="margin-top: 10px;">Submit Request</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- School Screen -->
+    <div id="school" class="screen">
+      <div class="card">
+        <h2 class="section-title">Debate School</h2>
+        <p>Learn debate techniques and improve your argumentation skills.</p>
+
+        <div style="margin-top: 30px;">
+          <h3 style="color: #e94560; margin-bottom: 15px;">Courses</h3>
+          <div class="grid-2">
+            <div class="card" style="background: #1a1a2e;">
+              <h4>Rhetoric 101</h4>
+              <p style="font-size: 0.9em; color: #aaa; margin: 10px 0;">Learn the fundamentals of persuasive speaking</p>
+              <button style="width: 100%; margin-top: 10px;">Enroll</button>
+            </div>
+            <div class="card" style="background: #1a1a2e;">
+              <h4>Logic & Arguments</h4>
+              <p style="font-size: 0.9em; color: #aaa; margin: 10px 0;">Master logical fallacies and valid reasoning</p>
+              <button style="width: 100%; margin-top: 10px;">Enroll</button>
+            </div>
+            <div class="card" style="background: #1a1a2e;">
+              <h4>Counter-Arguments</h4>
+              <p style="font-size: 0.9em; color: #aaa; margin: 10px 0;">Develop effective rebuttals and defenses</p>
+              <button style="width: 100%; margin-top: 10px;">Enroll</button>
+            </div>
+            <div class="card" style="background: #1a1a2e;">
+              <h4>Debate Strategy</h4>
+              <p style="font-size: 0.9em; color: #aaa; margin: 10px 0;">Advanced tactics for competitive debate</p>
+              <button style="width: 100%; margin-top: 10px;">Enroll</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showScreen(screenId) {
+      // Hide all screens
+      const screens = document.querySelectorAll('.screen');
+      screens.forEach(screen => screen.classList.remove('active'));
+
+      // Update nav buttons
+      const buttons = document.querySelectorAll('.nav-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+
+      // Show selected screen
+      const selectedScreen = document.getElementById(screenId);
+      if (selectedScreen) {
+        selectedScreen.classList.add('active');
+        event.target.classList.add('active');
+      }
+    }
+
+    async function createDebate() {
+      const status = document.getElementById('debateStatus');
+      status.innerHTML = '<div class="status loading">Creating debate...</div>';
+
+      try {
+        // Simulate API call
+        setTimeout(() => {
+          status.innerHTML = '<div class="status success">Debate created successfully!</div>';
+        }, 1000);
+      } catch (error) {
+        status.innerHTML = '<div class="status error">Error creating debate</div>';
+      }
+    }
+
+    async function generateArgument() {
+      const topic = document.getElementById('topicInput').value;
+      const position = document.getElementById('positionSelect').value;
+      const status = document.getElementById('argumentStatus');
+      const result = document.getElementById('generatedArgument');
+
+      if (!topic) {
+        status.innerHTML = '<div class="status error">Please enter a topic</div>';
+        return;
+      }
+
+      status.innerHTML = '<div class="status loading">Generating argument...</div>';
+      result.innerHTML = '';
+
+      try {
+        const response = await fetch('/api/debate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic, position })
+        });
+
+        if (!response.ok) throw new Error('Failed to generate argument');
+
+        const data = await response.json();
+        status.innerHTML = '<div class="status success">Argument generated!</div>';
+        result.innerHTML = `<div class="argument-box"><strong>Generated Argument:</strong><p>${data.argument}</p></div>`;
+      } catch (error) {
+        status.innerHTML = '<div class="status error">Error generating argument: ' + error.message + '</div>';
+      }
+    }
+
+    async function askOracle() {
+      const status = document.getElementById('oracleStatus');
+      status.innerHTML = '<div class="status loading">Consulting the Oracle...</div>';
+
+      setTimeout(() => {
+        document.getElementById('oracleResponse').innerHTML =
+          '<div class="oracle-response">The Oracle suggests: Focus on your strongest points and save them for the conclusion. Use the primacy and recency effects to your advantage.</div>';
+        status.innerHTML = '<div class="status success">Oracle has spoken</div>';
+      }, 1500);
+    }
+
+    // Initialize app
+    console.log('Underground Debate Club initialized');
+  </script>
+</body>
+</html>
