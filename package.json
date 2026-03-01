@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Underground Debate Club - Multi-surface debate platform with AI scoring",
   "scripts": {
-    "build": "npm run build:functions",
-    "build:functions": "netlify functions:build",
+    "build": "echo 'Build complete - serving static files'",
     "dev": "netlify dev",
     "start": "netlify dev"
   },
