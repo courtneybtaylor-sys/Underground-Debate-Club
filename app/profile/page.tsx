@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { getPlayer, savePlayer } from "@/lib/storage";
 import { RHETORIC_CLASSES, BADGES } from "@/lib/constants";
 import type { Player } from "@/lib/types";
-import { ArrowLeft, Edit2, CheckCircle } from "lucide-react";
+import { ArrowLeft, Edit2, CheckCircle, Lock } from "lucide-react";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -16,6 +16,9 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [newName, setNewName] = useState("");
   const [selectedClass, setSelectedClass] = useState<string>("");
+  const [licenseCode, setLicenseCode] = useState("");
+  const [licenseError, setLicenseError] = useState("");
+  const [licenseLoading, setLicenseLoading] = useState(false);
 
   useEffect(() => {
     const p = getPlayer();
@@ -43,6 +46,48 @@ export default function ProfilePage() {
       const updated = { ...player, rhetoricClass: newClass as any };
       setPlayer(updated);
       savePlayer(updated);
+    }
+  };
+
+  const handleApplySchoolLicense = async () => {
+    if (!licenseCode.trim()) {
+      setLicenseError("Please enter a license code");
+      return;
+    }
+
+    setLicenseLoading(true);
+    setLicenseError("");
+
+    try {
+      const response = await fetch("/api/school-license/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: licenseCode }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setLicenseError(data.error || "Invalid license code");
+        return;
+      }
+
+      // Update player with SCHOOL tier
+      if (player) {
+        const updated = {
+          ...player,
+          tier: "SCHOOL" as const,
+          schoolLicenseCode: licenseCode,
+        };
+        setPlayer(updated);
+        savePlayer(updated);
+        setLicenseCode("");
+        setLicenseError("");
+      }
+    } catch (error) {
+      setLicenseError("Failed to validate license code");
+    } finally {
+      setLicenseLoading(false);
     }
   };
 
@@ -157,6 +202,51 @@ export default function ProfilePage() {
             ))}
           </div>
         </Card>
+
+        {/* School License */}
+        {player.tier === "FREE" && (
+          <Card className="p-6 border-secondary">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-bold mb-1">Unlock SCHOOL Tier</h2>
+                <p className="text-sm text-foreground/70">
+                  Have a school license code? Unlock SCHOOL tier for light theme and expanded features.
+                </p>
+              </div>
+              <Lock size={24} className="text-secondary" />
+            </div>
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Enter school license code"
+                value={licenseCode}
+                onChange={(e) => setLicenseCode(e.target.value.toUpperCase())}
+                onKeyDown={(e) => e.key === "Enter" && handleApplySchoolLicense()}
+                className="flex-1 bg-border border border-primary/30 rounded-lg px-4 py-2 text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary"
+              />
+              <Button
+                onClick={handleApplySchoolLicense}
+                disabled={licenseLoading}
+                size="sm"
+              >
+                {licenseLoading ? "Validating..." : "Apply"}
+              </Button>
+            </div>
+
+            {licenseError && (
+              <p className="text-sm text-red-500 mt-2">{licenseError}</p>
+            )}
+          </Card>
+        )}
+
+        {player.tier === "SCHOOL" && (
+          <Card className="p-6 bg-secondary/10 border-secondary">
+            <p className="text-foreground">
+              ✓ SCHOOL tier unlocked! You now have access to light theme and extended debate features.
+            </p>
+          </Card>
+        )}
 
         {/* Badges */}
         <Card className="p-6">
