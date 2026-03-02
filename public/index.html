@@ -1340,6 +1340,11 @@
 
       // Cabinet timer
       startCabinetTimer() {
+        console.log('[Shadow Cabinet] Cabinet loaded. Ready to generate cards.');
+        console.log('[Shadow Cabinet] Topic:', this.state.currentTopic);
+        console.log('[Shadow Cabinet] Position:', this.state.currentPosition);
+        console.log('[Shadow Cabinet] Archetype:', this.state.archetype);
+
         let timeLeft = 30;
         const timer = document.getElementById('cabinetTimer');
         const interval = setInterval(() => {
@@ -1357,20 +1362,44 @@
 
       // Generate argument cards
       async generateCard(type) {
+        const btnId = type + 'Btn';
+        const btn = document.getElementById(btnId);
+        if (btn) btn.disabled = true;
+
+        const requestPayload = {
+          action: 'shadow_cabinet',
+          topic: this.state.currentTopic,
+          position: this.state.currentPosition,
+          cardType: type,
+        };
+
+        console.log(`[Shadow Cabinet] Generating ${type} card...`);
+        console.log('[Shadow Cabinet] Request:', requestPayload);
+
         try {
           const response = await fetch('/api/debate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'shadow_cabinet',
-              topic: this.state.currentTopic,
-              position: this.state.currentPosition,
-              cardType: type,
-            }),
+            body: JSON.stringify(requestPayload),
           });
 
-          if (!response.ok) throw new Error('Failed to generate card');
+          console.log(`[Shadow Cabinet] Response status: ${response.status}`);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`[Shadow Cabinet] HTTP ${response.status} error:`, errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+          }
+
           const data = await response.json();
+          console.log(`[Shadow Cabinet] Response data:`, data);
+
+          // Check for API error response
+          if (data.error) {
+            console.error(`[Shadow Cabinet] API error: ${data.error}`);
+            this.showToast(`❌ Error: ${data.error}`, 'error');
+            return;
+          }
 
           const cardHtml = `
             <div class="power-card" onclick="app.appendCard(this)">
@@ -1380,9 +1409,12 @@
             </div>
           `;
           document.getElementById('generatedCards').innerHTML += cardHtml;
-          this.showToast(`${type} card generated`, 'success');
+          this.showToast(`✅ ${type} card generated`, 'success');
         } catch (error) {
-          this.showToast('Error generating card: ' + error.message, 'error');
+          console.error(`[Shadow Cabinet] Fetch error:`, error);
+          this.showToast(`❌ Error: ${error.message}`, 'error');
+        } finally {
+          if (btn) btn.disabled = false;
         }
       },
 
