@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import type { Player } from "@/lib/types";
 
@@ -19,50 +18,65 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [player, setPlayer] = useState<Player | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const [supabase, setSupabase] = useState<any>(null);
 
   useEffect(() => {
-    const checkUser = async () => {
+    // Lazy load Supabase client
+    const initSupabase = async () => {
       try {
+        const { createClient } = await import("@/lib/supabase/client");
+        const client = createClient();
+        setSupabase(client);
+
+        // Check for existing user
         const {
           data: { user },
-        } = await supabase.auth.getUser();
+        } = await client.auth.getUser();
         setUser(user);
 
         if (user) {
           // Fetch player profile
-          const { data: playerData } = await supabase
+          const { data: playerData } = await client
             .from("users")
             .select("*")
             .eq("id", user.id)
-            .single();
+            .single()
+            .catch(() => ({ data: null }));
 
           if (playerData) {
             setPlayer(playerData as Player);
           }
         }
       } catch (error) {
-        console.error("Error checking user:", error);
+        console.log("Supabase not configured yet");
       } finally {
         setLoading(false);
       }
     };
 
-    checkUser();
+    initSupabase();
+  }, []);
 
-    // Subscribe to auth changes
+  useEffect(() => {
+    if (!supabase) return;
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event: string, session: any) => {
       setUser(session?.user || null);
       if (session?.user) {
-        const { data: playerData } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
-        if (playerData) {
-          setPlayer(playerData as Player);
+        try {
+          const { data: playerData } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", session.user.id)
+            .single()
+            .catch(() => ({ data: null }));
+          if (playerData) {
+            setPlayer(playerData as Player);
+          }
+        } catch (error) {
+          console.log("Error fetching player:", error);
         }
       } else {
         setPlayer(null);
@@ -70,10 +84,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => subscription?.unsubscribe();
-  }, []);
+  }, [supabase]);
 
   const updatePlayer = async (updates: Partial<Player>) => {
-    if (!user) return;
+    if (!user || !supabase) return;
 
     try {
       const { data } = await supabase
@@ -81,7 +95,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         .update(updates)
         .eq("id", user.id)
         .select()
-        .single();
+        .single()
+        .catch(() => ({ data: null }));
 
       if (data) {
         setPlayer(data as Player);
@@ -92,6 +107,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
+    if (!supabase) return;
     await supabase.auth.signOut();
     setUser(null);
     setPlayer(null);
