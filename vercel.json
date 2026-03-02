@@ -1,5 +1,7 @@
 {
-  "buildCommand": "npm run build:ui",
-  "outputDirectory": "public",
-  "framework": null
+  "framework": "nextjs",
+  "projectSettings": {
+    "outputDirectory": ".next"
+  }
 }
+
