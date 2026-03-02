@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import LiveDebatesTicker from "@/components/game/LiveDebatesTicker";
 import { getPlayer, createNewPlayer, savePlayer } from "@/lib/storage";
 import type { Player } from "@/lib/types";
 import { ArrowRight, Brain, Users, Zap } from "lucide-react";
@@ -128,6 +129,9 @@ export default function Home() {
                 </Card>
               ))}
             </div>
+
+            {/* Live Debates Ticker */}
+            <LiveDebatesTicker />
 
             {/* Player Stats */}
             {player && (
