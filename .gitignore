@@ -1,5 +1,9 @@
 node_modules/
 dist/
+public/*.js
+public/*.d.ts
+public/*.js.map
+public/ui/
 .env
 .env.local
 .env.*.local
