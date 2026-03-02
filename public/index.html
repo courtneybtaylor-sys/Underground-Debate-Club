@@ -1,1795 +1,776 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Underground Debate Club</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --gold: #d4a017;
-      --navy: #080810;
-      --teal: #2d6af6;
-      --red: #e8364a;
-      --shadow: rgba(0, 0, 0, 0.8);
-      --light-text: #ffffff;
-      --dim-text: #b0b0b0;
-      
-      --bg-primary: #0a0a0f;
-      --bg-secondary: #12121a;
-      --bg-tertiary: #1a1a28;
-      --border-color: #2a2a38;
-    }
-
-    body.light-mode {
-      --bg-primary: #f5f5f5;
-      --bg-secondary: #ffffff;
-      --bg-tertiary: #eeeeee;
-      --border-color: #dddddd;
-      --light-text: #1a1a1a;
-      --dim-text: #666666;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html, body {
-      width: 100%;
-      height: 100%;
-    }
-
-    body {
-      font-family: 'Crimson Pro', serif;
-      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-      color: var(--light-text);
-      min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: 
-        repeating-linear-gradient(
-          0deg,
-          rgba(0, 0, 0, 0.05),
-          rgba(0, 0, 0, 0.05) 1px,
-          transparent 1px,
-          transparent 2px
-        );
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .screen.full-height {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-      height: 100vh;
-      z-index: 10;
-      overflow: hidden;
-      display: none;
-    }
-
-    .screen.full-height.active {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .app-container {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    .nav-bar {
-      background: rgba(var(--navy), 0.95);
-      border-bottom: 2px solid var(--gold);
-      padding: 1rem 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .nav-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.5rem;
-      color: var(--gold);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-
-    .nav-buttons {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      flex: 1;
-    }
-
-    .nav-btn {
-      padding: 0.6rem 1.2rem;
-      background: rgba(45, 106, 246, 0.1);
-      color: var(--teal);
-      border: 1px solid var(--teal);
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: all 0.3s ease;
-      white-space: nowrap;
-    }
-
-    .nav-btn:hover {
-      background: var(--teal);
-      color: var(--navy);
-      transform: translateY(-2px);
-      box-shadow: 0 0 15px rgba(45, 106, 246, 0.5);
-    }
-
-    .nav-btn.active {
-      background: var(--teal);
-      color: var(--navy);
-      box-shadow: 0 0 15px rgba(45, 106, 246, 0.6);
-    }
-
-    .nav-controls {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-
-    .theme-toggle {
-      background: rgba(212, 160, 23, 0.1);
-      border: 1px solid var(--gold);
-      color: var(--gold);
-      padding: 0.5rem 0.8rem;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.3s ease;
-    }
-
-    .theme-toggle:hover {
-      background: var(--gold);
-      color: var(--navy);
-    }
-
-    .main-content {
-      flex: 1;
-      padding: 2rem 1.5rem;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
-    .screen {
-      display: none;
-      animation: fadeIn 0.4s ease-out;
-    }
-
-    .screen.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes bubbleIn {
-      from { opacity: 0; transform: scale(0.8); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
-
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes oracleIn {
-      from { opacity: 0; transform: translateX(-20px); filter: blur(5px); }
-      to { opacity: 1; transform: translateX(0); filter: blur(0); }
-    }
-
-    .card {
-      background: rgba(var(--bg-secondary), 0.8);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      animation: fadeIn 0.4s ease-out;
-    }
-
-    .card.hero {
-      background: radial-gradient(circle at 30% 50%, rgba(212, 160, 23, 0.15) 0%, rgba(45, 106, 246, 0.05) 100%);
-      min-height: 400px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-      font-family: 'Bebas Neue', sans-serif;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-
-    h1 {
-      font-size: 3.5rem;
-      color: var(--gold);
-      margin-bottom: 1rem;
-      text-shadow: 0 0 20px rgba(212, 160, 23, 0.5);
-    }
-
-    h2 {
-      font-size: 2.2rem;
-      color: var(--teal);
-      margin-bottom: 1.5rem;
-      border-bottom: 2px solid var(--gold);
-      padding-bottom: 0.5rem;
-    }
-
-    h3 {
-      font-size: 1.8rem;
-      color: var(--gold);
-      margin: 1.5rem 0 1rem;
-    }
-
-    h4 {
-      font-size: 1.3rem;
-      color: var(--teal);
-      margin: 1rem 0 0.5rem;
-    }
-
-    .subtitle {
-      font-size: 1.2rem;
-      color: var(--dim-text);
-      font-style: italic;
-      margin-bottom: 2rem;
-    }
-
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: var(--teal);
-      font-weight: 600;
-      text-transform: uppercase;
-      font-size: 0.9rem;
-      letter-spacing: 1px;
-    }
-
-    input, textarea, select {
-      width: 100%;
-      padding: 0.8rem;
-      background: rgba(var(--bg-tertiary), 0.8);
-      border: 1px solid var(--border-color);
-      color: var(--light-text);
-      border-radius: 4px;
-      font-family: 'Crimson Pro', serif;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-    }
-
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: var(--teal);
-      background: rgba(45, 106, 246, 0.1);
-      box-shadow: 0 0 15px rgba(45, 106, 246, 0.3);
-    }
-
-    button {
-      padding: 0.8rem 1.5rem;
-      background: linear-gradient(135deg, var(--teal) 0%, var(--gold) 100%);
-      color: var(--navy);
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: 700;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(45, 106, 246, 0.3);
-    }
-
-    button:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(45, 106, 246, 0.5);
-    }
-
-    button:active:not(:disabled) {
-      transform: translateY(0);
-    }
-
-    button:disabled {
-      background: rgba(128, 128, 128, 0.5);
-      cursor: not-allowed;
-      opacity: 0.6;
-    }
-
-    .button-secondary {
-      background: rgba(232, 54, 74, 0.2);
-      border: 1px solid var(--red);
-      color: var(--red);
-      box-shadow: 0 4px 15px rgba(232, 54, 74, 0.2);
-    }
-
-    .button-secondary:hover:not(:disabled) {
-      background: var(--red);
-      color: var(--light-text);
-      box-shadow: 0 6px 20px rgba(232, 54, 74, 0.5);
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-top: 1.5rem;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin-top: 1.5rem;
-    }
-
-    .stat-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 1rem;
-      margin: 1.5rem 0;
-    }
-
-    .stat-item {
-      background: rgba(var(--bg-tertiary), 0.8);
-      border: 1px solid var(--border-color);
-      padding: 1.5rem;
-      border-radius: 6px;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-
-    .stat-item:hover {
-      border-color: var(--teal);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(45, 106, 246, 0.2);
-    }
-
-    .stat-label {
-      color: var(--dim-text);
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-value {
-      font-size: 2.5rem;
-      color: var(--gold);
-      font-weight: bold;
-      font-family: 'Bebas Neue', sans-serif;
-    }
-
-    .badge {
-      display: inline-block;
-      background: linear-gradient(135deg, var(--teal) 0%, var(--gold) 100%);
-      color: var(--navy);
-      padding: 0.4rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .badge.secondary {
-      background: rgba(232, 54, 74, 0.2);
-      border: 1px solid var(--red);
-      color: var(--red);
-    }
-
-    .list-item {
-      background: rgba(var(--bg-tertiary), 0.6);
-      border-left: 3px solid var(--gold);
-      padding: 1rem;
-      margin-bottom: 0.8rem;
-      border-radius: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all 0.3s ease;
-    }
-
-    .list-item:hover {
-      background: rgba(var(--bg-tertiary), 0.9);
-      border-left-color: var(--teal);
-    }
-
-    .toast-container {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      z-index: 9999;
-      max-width: 400px;
-    }
-
-    .toast {
-      background: rgba(var(--bg-secondary), 0.95);
-      border: 1px solid var(--border-color);
-      border-left: 4px solid var(--teal);
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 6px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-      animation: bubbleIn 0.3s ease-out;
-    }
-
-    .toast.success {
-      border-left-color: #4caf50;
-    }
-
-    .toast.error {
-      border-left-color: var(--red);
-    }
-
-    .toast.warning {
-      border-left-color: var(--gold);
-    }
-
-    .loader {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(45, 106, 246, 0.3);
-      border-radius: 50%;
-      border-top-color: var(--teal);
-      animation: spin 0.8s linear infinite;
-    }
-
-    .cabinet-agents {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin: 1.5rem 0;
-    }
-
-    .agent-card {
-      background: rgba(212, 160, 23, 0.1);
-      border: 1px solid var(--gold);
-      border-radius: 8px;
-      padding: 1.5rem;
-      text-align: center;
-      animation: bubbleIn 0.4s ease-out;
-    }
-
-    .agent-card h4 {
-      color: var(--gold);
-      margin-bottom: 0.5rem;
-    }
-
-    .agent-card p {
-      color: var(--dim-text);
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
-    }
-
-    .power-card {
-      background: linear-gradient(135deg, rgba(45, 106, 246, 0.2) 0%, rgba(212, 160, 23, 0.2) 100%);
-      border: 2px solid var(--teal);
-      border-radius: 8px;
-      padding: 1rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      animation: bubbleIn 0.4s ease-out;
-    }
-
-    .power-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(45, 106, 246, 0.4);
-      border-color: var(--gold);
-    }
-
-    .power-card.used {
-      opacity: 0.5;
-      cursor: not-allowed;
-      border-color: var(--border-color);
-    }
-
-    .power-card h5 {
-      color: var(--gold);
-      font-size: 1.1rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .power-card p {
-      color: var(--dim-text);
-      font-size: 0.85rem;
-    }
-
-    .tension-rope {
-      height: 40px;
-      background: rgba(var(--bg-tertiary), 0.6);
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
-      margin: 2rem 0;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .tension-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--teal) 0%, var(--gold) 50%, var(--red) 100%);
-      border-radius: 20px;
-      width: 50%;
-      position: relative;
-      transition: width 0.5s ease;
-    }
-
-    .tension-bar::after {
-      content: '';
-      position: absolute;
-      right: -2px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 4px;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 2px;
-    }
-
-    .voter-swarm {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 1rem;
-      margin: 1.5rem 0;
-    }
-
-    .voter {
-      text-align: center;
-      padding: 1rem;
-      background: rgba(var(--bg-tertiary), 0.6);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      animation: fadeIn 0.4s ease-out;
-    }
-
-    .voter-name {
-      font-weight: 600;
-      color: var(--teal);
-      margin-bottom: 0.5rem;
-      font-size: 0.95rem;
-    }
-
-    .voter-score {
-      font-size: 2rem;
-      color: var(--gold);
-      font-weight: bold;
-    }
-
-    .argument-feed {
-      max-height: 500px;
-      overflow-y: auto;
-      padding-right: 0.5rem;
-    }
-
-    .argument-item {
-      background: rgba(var(--bg-tertiary), 0.6);
-      border-left: 3px solid var(--teal);
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 4px;
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    .argument-item.user {
-      border-left-color: var(--gold);
-    }
-
-    .argument-item.ai {
-      border-left-color: var(--red);
-    }
-
-    .argument-time {
-      color: var(--dim-text);
-      font-size: 0.8rem;
-      margin-top: 0.5rem;
-    }
-
-    .timer {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 2rem;
-      font-weight: bold;
-      color: var(--gold);
-      text-align: center;
-      margin: 1rem 0;
-    }
-
-    .timer.warning {
-      color: var(--red);
-      animation: pulse 1s ease-in-out infinite;
-    }
-
-    .oracle-line {
-      background: radial-gradient(circle at center, rgba(212, 160, 23, 0.2) 0%, rgba(45, 106, 246, 0.1) 100%);
-      border: 2px dashed var(--gold);
-      border-radius: 8px;
-      padding: 2rem;
-      text-align: center;
-      margin: 2rem 0;
-      animation: oracleIn 0.6s ease-out;
-    }
-
-    .oracle-message {
-      font-style: italic;
-      color: var(--gold);
-      font-size: 1.1rem;
-      line-height: 1.6;
-    }
-
-    .depth-meter {
-      background: rgba(var(--bg-tertiary), 0.8);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin: 1.5rem 0;
-    }
-
-    .depth-label {
-      color: var(--dim-text);
-      font-size: 0.85rem;
-      margin-bottom: 0.5rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .depth-bar {
-      height: 30px;
-      background: rgba(var(--bg-primary), 0.5);
-      border-radius: 15px;
-      overflow: hidden;
-      border: 1px solid var(--border-color);
-    }
-
-    .depth-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--teal) 0%, var(--gold) 50%, var(--red) 100%);
-      width: 0%;
-      transition: width 0.5s ease;
-      border-radius: 15px;
-    }
-
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      backdrop-filter: blur(5px);
-    }
-
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .modal {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 2rem;
-      max-width: 500px;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-      animation: bubbleIn 0.3s ease-out;
-    }
-
-    .modal h2 {
-      margin-top: 0;
-    }
-
-    .modal-buttons {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1.5rem;
-      justify-content: flex-end;
-    }
-
-    body.school ::selection {
-      background: rgba(45, 106, 246, 0.3);
-    }
-
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 2rem;
-      }
-
-      h2 {
-        font-size: 1.5rem;
-      }
-
-      h3 {
-        font-size: 1.3rem;
-      }
-
-      .nav-bar {
-        flex-direction: column;
-        gap: 1rem;
-      }
-
-      .nav-buttons {
-        width: 100%;
-      }
-
-      .nav-btn {
-        font-size: 0.8rem;
-        padding: 0.5rem 1rem;
-      }
-
-      .main-content {
-        padding: 1rem;
-      }
-
-      .card {
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .stat-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .toast-container {
-        bottom: 1rem;
-        right: 1rem;
-        left: 1rem;
-        max-width: none;
-      }
-
-      .modal {
-        width: 90%;
-        margin: 1rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 1.5rem;
-      }
-
-      h2 {
-        font-size: 1.2rem;
-      }
-
-      .nav-btn {
-        font-size: 0.7rem;
-        padding: 0.4rem 0.8rem;
-      }
-
-      button {
-        font-size: 0.9rem;
-        padding: 0.7rem 1.2rem;
-      }
-
-      .stat-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .card.hero {
-        min-height: 300px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNDERGROUND DEBATE CLUB — Arena</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #0a0a0c;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #e0e0e0;
+            line-height: 1.5;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(100, 50, 200, 0.15) 0%, transparent 30%),
+                radial-gradient(circle at 90% 70%, rgba(200, 50, 150, 0.1) 0%, transparent 40%),
+                linear-gradient(180deg, #0a0a0c 0%, #12121a 100%);
+            position: relative;
+        }
+        /* Animated grid overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(80, 60, 200, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(80, 60, 200, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        /* Navigation - Surface vs Underground */
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        .nav-logo {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #fff 0%, #b0b0ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+            position: relative;
+        }
+        .nav-link {
+            color: #8a8a9a;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .nav-link:hover {
+            color: #fff;
+        }
+        .nav-link.active {
+            color: #fff;
+        }
+        .nav-link.active::after {
+            content: "";
+            position: absolute;
+            bottom: -1.5rem;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, #8a4fff, #ff4f8a);
+            box-shadow: 0 0 15px rgba(138, 79, 255, 0.5);
+        }
+        .nav-link.underground {
+            color: #6b4f8a;
+            position: relative;
+        }
+        .nav-link.underground::before {
+            content: "🔒";
+            font-size: 0.8rem;
+            margin-right: 0.3rem;
+            opacity: 0.7;
+        }
+        .nav-link.underground:hover {
+            color: #b08aff;
+        }
+        /* Hero Section - Arena Entrance */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 5rem;
+            position: relative;
+        }
+        .hero-tag {
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            color: #8a4fff;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            background: rgba(138, 79, 255, 0.1);
+            padding: 0.3rem 1rem;
+            border-radius: 100px;
+            border: 1px solid rgba(138, 79, 255, 0.3);
+            backdrop-filter: blur(5px);
+            display: inline-block;
+        }
+        .hero-title {
+            font-size: 5rem;
+            font-weight: 900;
+            letter-spacing: 8px;
+            line-height: 1;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            background: linear-gradient(180deg, #fff 0%, #b8b8ff 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(138, 79, 255, 0.3);
+            position: relative;
+        }
+        .hero-title::after {
+            content: "";
+            position: absolute;
+            bottom: -0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #8a4fff, #ff4f8a, transparent);
+        }
+        .hero-sub {
+            font-size: 1.2rem;
+            color: #a8a8c0;
+            max-width: 600px;
+            margin-bottom: 2rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+        .hero-line {
+            font-size: 0.9rem;
+            color: #5f5f7a;
+            letter-spacing: 2px;
+            font-weight: 300;
+            margin-top: 1rem;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            padding-top: 2rem;
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+        }
+        .hero-line span {
+            color: #b08aff;
+            font-weight: 600;
+        }
+        .hero-cryptic {
+            font-size: 0.8rem;
+            color: #3f3f55;
+            margin-top: 0.5rem;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+        /* CTA Button */
+        .hero-cta {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        .btn {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #8a4fff, #ff4f8a);
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(138, 79, 255, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(138, 79, 255, 0.5);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        /* Game Loop Panels */
+        .game-loop {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        .loop-panel {
+            background: rgba(20, 20, 30, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .loop-panel:hover {
+            border-color: rgba(138, 79, 255, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -15px rgba(0, 0, 0, 0.5);
+        }
+        .loop-panel::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #8a4fff, #ff4f8a, transparent);
+        }
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .panel-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(138, 79, 255, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border: 1px solid rgba(138, 79, 255, 0.3);
+        }
+        .panel-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .panel-desc {
+            color: #a0a0b5;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        .panel-meta {
+            font-size: 0.85rem;
+            color: #6a6a85;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .panel-meta span {
+            color: #b08aff;
+            font-weight: 600;
+        }
+        /* Power Cards Grid */
+        .power-cards {
+            margin-bottom: 4rem;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1.5rem;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fff;
+        }
+        .section-sub {
+            color: #6a6a85;
+            font-size: 0.9rem;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+        }
+        .power-card {
+            background: rgba(15, 15, 25, 0.8);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1.2rem 0.8rem;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+        .power-card:hover {
+            border-color: rgba(138, 79, 255, 0.5);
+            background: rgba(30, 30, 45, 0.9);
+            transform: scale(1.02);
+        }
+        .power-card.offense {
+            border-left: 3px solid #ff4f4f;
+        }
+        .power-card.defense {
+            border-left: 3px solid #4f9fff;
+        }
+        .power-card.chaos {
+            border-left: 3px solid #b04fff;
+        }
+        .power-card.utility {
+            border-left: 3px solid #4fff9f;
+        }
+        .card-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .card-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+        .card-type {
+            font-size: 0.7rem;
+            color: #8a8aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .card-hover-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 15, 0.95);
+            padding: 0.5rem;
+            font-size: 0.7rem;
+            color: #ccc;
+            transform: translateY(100%);
+            transition: transform 0.2s;
+            border-top: 1px solid #8a4fff;
+        }
+        .power-card:hover .card-hover-info {
+            transform: translateY(0);
+        }
+        /* Scoring & Rules */
+        .rules-panel {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        .rule-card {
+            background: rgba(10, 10, 15, 0.7);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        .rule-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #b0b0d0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+        .scoring-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .scoring-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .scoring-label {
+            width: 70px;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        .scoring-bar-container {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .scoring-bar {
+            height: 100%;
+            border-radius: 10px;
+        }
+        .scoring-bar.logic {
+            width: 40%;
+            background: linear-gradient(90deg, #4f9fff, #8a4fff);
+        }
+        .scoring-bar.rhetoric {
+            width: 30%;
+            background: linear-gradient(90deg, #ff4f8a, #ff9f4f);
+        }
+        .scoring-bar.evidence {
+            width: 30%;
+            background: linear-gradient(90deg, #4fff9f, #4fb0ff);
+        }
+        .scoring-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #fff;
+        }
+        .win-condition {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 1rem 0;
+        }
+        .win-condition small {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: #8a8aaa;
+        }
+        .round-structure {
+            list-style: none;
+        }
+        .round-structure li {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+        .round-structure li:last-child {
+            border-bottom: none;
+        }
+        .round-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #8a4fff;
+        }
+        /* Sovereign Stack Indicators */
+        .stack-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 2rem;
+        }
+        .stack-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6a6a85;
+            font-size: 0.8rem;
+        }
+        .pulse {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4fff9f;
+            box-shadow: 0 0 10px #4fff9f;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .orada-qr {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(45deg, #fff 25%, #000 25%, #000 50%, #fff 50%, #fff 75%, #000 75%);
+            background-size: 10px 10px;
+            border-radius: 4px;
+        }
+        /* Language selector for Africa markets */
+        .lang-selector {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: flex-end;
+            margin-bottom: 1rem;
+        }
+        .lang-option {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #8a8aaa;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .lang-option:hover {
+            border-color: #8a4fff;
+            color: #fff;
+        }
+        .lang-option.active {
+            background: #8a4fff;
+            color: #fff;
+        }
+        /* Responsive */
+        @media (max-width: 1000px) {
+            .game-loop {
+                grid-template-columns: 1fr;
+            }
+            .card-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .rules-panel {
+                grid-template-columns: 1fr;
+            }
+            .hero-title {
+                font-size: 3rem;
+            }
+            .nav-links {
+                gap: 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+        @media (max-width: 600px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .hero-title {
+                font-size: 2rem;
+            }
+            .hero-cta {
+                flex-direction: column;
+                width: 100%;
+            }
+            .btn {
+                width: 100%;
+            }
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="app-container">
-    <!-- Navigation Bar -->
-    <nav class="nav-bar">
-      <div class="nav-title">Debate Club</div>
-      <div class="nav-buttons">
-        <button class="nav-btn active" data-screen="home">Home</button>
-        <button class="nav-btn" data-screen="lobby">Lobby</button>
-        <button class="nav-btn" data-screen="cabinet">Cabinet</button>
-        <button class="nav-btn" data-screen="profile">Profile</button>
-        <button class="nav-btn" data-screen="oracle">Oracle</button>
-        <button class="nav-btn" data-screen="underground">Underground</button>
-        <button class="nav-btn" data-screen="school">School</button>
-      </div>
-      <div class="nav-controls">
-        <button class="theme-toggle" id="themeToggle">Light</button>
-      </div>
-    </nav>
-
-    <!-- Main Content Area -->
-    <div class="main-content">
-      <!-- Home Screen -->
-      <div id="home" class="screen active">
-        <div class="card hero">
-          <h1>Underground Debate Club</h1>
-          <p class="subtitle">Where ideas clash and rhetorical mastery reigns supreme</p>
-          <div style="margin-top: 2rem; max-width: 600px;">
-            <h3 style="font-size: 1.5rem; margin-top: 0;">How to Play</h3>
-            <div style="text-align: left; color: var(--dim-text); line-height: 1.8; margin-top: 1.5rem;">
-              <p><strong style="color: var(--teal);">1. Join the Lobby:</strong> Select a debate topic and choose your position (For/Against).</p>
-              <p><strong style="color: var(--teal);">2. Prepare in Shadow Cabinet:</strong> Access three AI prep agents who generate 6 cards with research, rhetoric, and fact-check arguments.</p>
-              <p><strong style="color: var(--teal);">3. Battle Your Opponent:</strong> Engage in 3 rounds of debate. Use power cards strategically (FLIP, FACT CHECK, MIRROR, AMPLIFY, RECESS, SILENCE).</p>
-              <p><strong style="color: var(--teal);">4. Win the Voters:</strong> Sway 5 judges with Logic (40%), Rhetoric (30%), and Fact-checking (30%) to win 3 out of 5 voters.</p>
-              <p><strong style="color: var(--teal);">5. Earn Influence:</strong> Win debates, build your streak, unlock the Oracle, and access the Underground network.</p>
+    <div class="container">
+        <!-- Language Selector - Africa markets -->
+        <div class="lang-selector">
+            <span class="lang-option active">EN</span>
+            <span class="lang-option">SW</span>
+            <span class="lang-option">YO</span>
+            <span class="lang-option">AR</span>
+            <span class="lang-option">TL</span>
+        </div>
+        <!-- Navigation -->
+        <nav class="nav">
+            <div class="nav-logo" onclick="window.location.href='/'">DEBATE CLUB</div>
+            <div class="nav-links">
+                <a href="/game.html" class="nav-link">ARENA</a>
+                <a href="/game.html" class="nav-link">RANKED</a>
+                <a href="/game.html" class="nav-link active">UNDERGROUND</a>
+                <a href="/game.html" class="nav-link">FACTIONS</a>
+                <a href="/game.html" class="nav-link">PROFILE</a>
             </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Today's Topic</h3>
-          <p style="font-size: 1.2rem; color: var(--teal); margin: 1rem 0;">Should AI be regulated by governments before it becomes superintelligent?</p>
-          <button onclick="app.navigateTo('lobby')">Start Debate</button>
-        </div>
-      </div>
-
-      <!-- Lobby Screen -->
-      <div id="lobby" class="screen">
-        <div class="card">
-          <h2>Debate Lobby</h2>
-          <div class="form-group">
-            <label>Select Topic</label>
-            <select id="topicSelect">
-              <option value="">Choose a topic...</option>
-              <option value="ai-regulation">Should AI be regulated by governments before superintelligence?</option>
-              <option value="universal-income">Is universal basic income the solution to automation?</option>
-              <option value="space-exploration">Should nations prioritize space exploration over earth problems?</option>
-              <option value="free-will">Does free will exist in a deterministic universe?</option>
-              <option value="social-media">Have social media networks done more harm than good?</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Your Position</label>
-            <select id="positionSelect">
-              <option value="for">For</option>
-              <option value="against">Against</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Rhetoric Class</label>
-            <select id="classSelect">
-              <option value="diplomat">Diplomat - Persuasion through empathy</option>
-              <option value="warrior">Warrior - Aggressive deconstruction</option>
-              <option value="scholar">Scholar - Logic and evidence</option>
-              <option value="sage">Sage - Philosophical depth</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Archetype</label>
-            <select id="archetypeSelect">
-              <option value="prosecutor">Prosecutor - Fact-focused attacks</option>
-              <option value="mystic">Mystic - Intuitive leaps</option>
-              <option value="builder">Builder - Constructive arguments</option>
-            </select>
-          </div>
-
-          <button onclick="app.startDebate()">Enter Cabinet</button>
-          <div id="lobbyStatus"></div>
-        </div>
-      </div>
-
-      <!-- Cabinet Screen -->
-      <div id="cabinet" class="screen">
-        <div class="card">
-          <h2>Shadow Cabinet</h2>
-          <p style="color: var(--dim-text); margin-bottom: 1.5rem;">Prepare your arguments with AI advisors. Time remaining: <span class="timer" id="cabinetTimer">30s</span></p>
-
-          <h3>Your Prep Agents</h3>
-          <div class="cabinet-agents">
-            <div class="agent-card">
-              <h4>Research Expert</h4>
-              <p>Provides evidence-based arguments</p>
-              <button onclick="app.generateCard('research')" id="researchBtn">Generate Card</button>
+        </nav>
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-tag">⚡ SEASON 3 · ENTER THE ARENA</div>
+            <h1 class="hero-title">UNDERGROUND<br>DEBATE CLUB</h1>
+            <div class="hero-sub">No opinions. No vibes. Just skill.</div>
+            <div class="hero-line">
+                <span>DEPTH IS EARNED</span> · THE ORACLE WATCHES · <span>SOME DOORS ONLY OPEN WHEN YOU'RE READY</span>
             </div>
-            <div class="agent-card">
-              <h4>Rhetoric Master</h4>
-              <p>Crafts persuasive language</p>
-              <button onclick="app.generateCard('rhetoric')" id="rhetoricBtn">Generate Card</button>
+            <div class="hero-cryptic">"Argues to find truth, not to win." — The Oracle</div>
+            <!-- CTA Buttons -->
+            <div class="hero-cta">
+                <a href="/game.html" class="btn btn-primary">⚔️ Start Your First Debate</a>
+                <button class="btn btn-secondary" onclick="document.querySelector('.game-loop').scrollIntoView({behavior:'smooth'})">Learn How to Play</button>
             </div>
-            <div class="agent-card">
-              <h4>Fact Checker</h4>
-              <p>Identifies counterargument flaws</p>
-              <button onclick="app.generateCard('factcheck')" id="factcheckBtn">Generate Card</button>
+        </div>
+        <!-- Game Loop - Three Panels -->
+        <div class="game-loop">
+            <div class="loop-panel">
+                <div class="panel-header">
+                    <div class="panel-icon">⚔️</div>
+                    <div class="panel-title">MATCH SETUP</div>
+                </div>
+                <div class="panel-desc">
+                    Enter the lobby. Topic is drawn. Stance is lottery—you argue what you're given. Choose your Rhetorical Class: Analyst, Firebrand, or Trickster. Each shifts voter affinity.
+                </div>
+                <div class="panel-meta">
+                    <span>3 classes</span> · <span>stance random</span> · <span>daily topics</span>
+                </div>
             </div>
-          </div>
-
-          <h3>Generated Cards</h3>
-          <div id="generatedCards" class="grid-3" style="margin-top: 1.5rem;"></div>
-
-          <h3 style="margin-top: 2rem;">Your Argument Input</h3>
-          <textarea id="argumentInput" placeholder="Build your opening argument using cards or your own words..." rows="6" style="margin-bottom: 1rem;"></textarea>
-          <button onclick="app.enterBattle()">Ready for Battle</button>
-        </div>
-      </div>
-
-      <!-- Battle Screen (full height) -->
-      <div id="battle" class="screen full-height">
-        <style scoped>
-          #battle {
-            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-            flex-direction: column;
-            justify-content: space-between;
-          }
-          #battle .battle-header {
-            padding: 2rem 1.5rem;
-            border-bottom: 2px solid var(--gold);
-            background: rgba(var(--bg-secondary), 0.9);
-          }
-          #battle .battle-main {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            padding: 2rem 1.5rem;
-            overflow: hidden;
-          }
-          #battle .battle-footer {
-            padding: 1.5rem;
-            background: rgba(var(--bg-secondary), 0.9);
-            border-top: 2px solid var(--gold);
-          }
-          @media (max-width: 1024px) {
-            #battle .battle-main {
-              grid-template-columns: 1fr;
-            }
-          }
-        </style>
-
-        <div class="battle-header">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <div>
-              <h3 style="margin: 0;">Topic: <span id="battleTopic">AI Regulation</span></h3>
+            <div class="loop-panel">
+                <div class="panel-header">
+                    <div class="panel-icon">🧠</div>
+                    <div class="panel-title">SHADOW CABINET</div>
+                </div>
+                <div class="panel-desc">
+                    30 seconds. Deploy 3 AI prep agents: Research, Rhetoric, Fact-Check. They return 6 Bullet Cards—ammunition for the arena. Each card injects instantly mid-debate.
+                </div>
+                <div class="panel-meta">
+                    <span>3 agents</span> · <span>6 bullets</span> · <span>one-time use</span>
+                </div>
             </div>
-            <div style="text-align: right;">
-              <div class="timer" id="battleTimer">60s</div>
-              <p style="color: var(--dim-text); margin: 0; font-size: 0.9rem;">Round <span id="currentRound">1</span>/3</p>
+            <div class="loop-panel">
+                <div class="panel-header">
+                    <div class="panel-icon">🏛️</div>
+                    <div class="panel-title">THE ARENA</div>
+                </div>
+                <div class="panel-desc">
+                    3 rounds. Deploy Power Cards. The Voter Swarm judges: 5 citizens, each with unique bias. Win 3 of 5 to claim victory. Every argument logged, scored, audited.
+                </div>
+                <div class="panel-meta">
+                    <span>logic 40%</span> · <span>rhetoric 30%</span> · <span>evidence 30%</span>
+                </div>
             </div>
-          </div>
-          <div class="tension-rope">
-            <div class="tension-bar" id="tensionBar"></div>
-          </div>
         </div>
-
-        <div class="battle-main">
-          <div>
-            <h4>Your Arguments (FOR)</h4>
-            <div class="argument-feed" id="userArgumentFeed"></div>
-          </div>
-          <div>
-            <h4>Opponent Arguments (AGAINST)</h4>
-            <div class="argument-feed" id="aiArgumentFeed"></div>
-          </div>
-        </div>
-
-        <div class="battle-footer">
-          <h4>Voter Scoring</h4>
-          <div class="voter-swarm" id="voterSwarm"></div>
-          <h4 style="margin-top: 1.5rem;">Power Cards</h4>
-          <div id="powerCards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;"></div>
-          <div style="display: flex; gap: 1rem;">
-            <textarea id="battleInput" placeholder="Enter your argument..." rows="3" style="flex: 1;"></textarea>
-            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-              <button onclick="app.submitArgument()">Submit</button>
-              <button class="button-secondary" onclick="app.navigateTo('results')">End Battle</button>
+        <!-- Power Cards -->
+        <div class="power-cards">
+            <div class="section-header">
+                <div class="section-title">POWER CARDS</div>
+                <div class="section-sub">strategic abilities · one per match</div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Results Screen -->
-      <div id="results" class="screen">
-        <div class="card">
-          <h2>Battle Results</h2>
-          <div style="text-align: center; margin: 2rem 0;">
-            <h3 id="resultTitle" style="color: var(--gold); font-size: 2.5rem;">Victory!</h3>
-            <p style="color: var(--dim-text); font-size: 1.1rem;">You earned <strong style="color: var(--teal);">50 Influence</strong></p>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Voter Breakdown</h3>
-          <div class="stat-grid" id="resultVoters"></div>
-        </div>
-
-        <div class="card">
-          <h3>Score Breakdown</h3>
-          <div class="stat-grid">
-            <div class="stat-item">
-              <div class="stat-label">Logic</div>
-              <div class="stat-value" id="scoreLogic">82%</div>
+            <div class="card-grid">
+                <div class="power-card offense">
+                    <div class="card-icon">🔄</div>
+                    <div class="card-name">FLIP</div>
+                    <div class="card-type">offense</div>
+                    <div class="card-hover-info">Switch both sides mid-debate</div>
+                </div>
+                <div class="power-card defense">
+                    <div class="card-icon">🔍</div>
+                    <div class="card-name">FACT CHECK</div>
+                    <div class="card-type">defense</div>
+                    <div class="card-hover-info">Flag AI argument; penalty if wrong</div>
+                </div>
+                <div class="power-card chaos">
+                    <div class="card-icon">🌀</div>
+                    <div class="card-name">WILDCARD</div>
+                    <div class="card-type">chaos</div>
+                    <div class="card-hover-info">Inject new sub-topic mid-round</div>
+                </div>
+                <div class="power-card defense">
+                    <div class="card-icon">🪞</div>
+                    <div class="card-name">MIRROR</div>
+                    <div class="card-type">counter</div>
+                    <div class="card-hover-info">Reflect opponent's last argument</div>
+                </div>
+                <div class="power-card offense">
+                    <div class="card-icon">📢</div>
+                    <div class="card-name">AMPLIFY</div>
+                    <div class="card-type">boost</div>
+                    <div class="card-hover-info">Double impact of next argument</div>
+                </div>
+                <div class="power-card utility">
+                    <div class="card-icon">⏸️</div>
+                    <div class="card-name">RECESS</div>
+                    <div class="card-type">utility</div>
+                    <div class="card-hover-info">+30 seconds added to timer</div>
+                </div>
             </div>
-            <div class="stat-item">
-              <div class="stat-label">Rhetoric</div>
-              <div class="stat-value" id="scoreRhetoric">75%</div>
+        </div>
+        <!-- Scoring & Rules -->
+        <div class="rules-panel">
+            <div class="rule-card">
+                <div class="rule-title">SCORING WEIGHTS</div>
+                <div class="scoring-bars">
+                    <div class="scoring-item">
+                        <span class="scoring-label">Logic</span>
+                        <div class="scoring-bar-container">
+                            <div class="scoring-bar logic"></div>
+                        </div>
+                        <span class="scoring-value">40%</span>
+                    </div>
+                    <div class="scoring-item">
+                        <span class="scoring-label">Rhetoric</span>
+                        <div class="scoring-bar-container">
+                            <div class="scoring-bar rhetoric"></div>
+                        </div>
+                        <span class="scoring-value">30%</span>
+                    </div>
+                    <div class="scoring-item">
+                        <span class="scoring-label">Evidence</span>
+                        <div class="scoring-bar-container">
+                            <div class="scoring-bar evidence"></div>
+                        </div>
+                        <span class="scoring-value">30%</span>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; font-size: 0.9rem; color: #8a8aaa;">
+                    Underground shifts weights: <span style="color:#ff9f4f;">Rhetoric 60%</span>
+                </div>
             </div>
-            <div class="stat-item">
-              <div class="stat-label">Fact-Check</div>
-              <div class="stat-value" id="scoreFact">88%</div>
+            <div class="rule-card">
+                <div class="rule-title">WIN CONDITION</div>
+                <div class="win-condition">
+                    3/5 <small>judges</small>
+                </div>
+                <div style="display: flex; gap: 0.5rem; margin: 1rem 0;">
+                    <span style="background: #4f9fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">😐</span>
+                    <span style="background: #ff4f8a; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">🎓</span>
+                    <span style="background: #4fff9f; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">👥</span>
+                    <span style="background: #b04fff; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">⚖️</span>
+                    <span style="background: #ff9f4f; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">💼</span>
+                </div>
+                <div style="font-size: 0.85rem;">The Skeptic · Academic · Populist · Ethicist · Pragmatist</div>
             </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Debate Debrief</h3>
-          <div id="debriefContent" style="line-height: 1.8; color: var(--dim-text);">
-            <p>Your debate performance was strong. You made compelling arguments about AI regulation benefits, supported by concrete examples. Your rhetoric was persuasive, though some opponents questioned your fact-checking on recent policy developments.</p>
-          </div>
-        </div>
-
-        <button onclick="app.navigateTo('lobby')">Continue to Lobby</button>
-      </div>
-
-      <!-- Profile Screen -->
-      <div id="profile" class="screen">
-        <div class="card">
-          <h2>Player Profile</h2>
-          <div style="text-align: center; margin-bottom: 2rem;">
-            <div style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--teal) 0%, var(--gold) 100%); border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">👤</div>
-            <h3 id="playerName">Debate Master</h3>
-            <p style="color: var(--dim-text); margin-bottom: 1.5rem;">Rhetoric Class: <strong id="playerClass" style="color: var(--teal);">Diplomat</strong></p>
-          </div>
-
-          <div class="stat-grid">
-            <div class="stat-item">
-              <div class="stat-label">Debates</div>
-              <div class="stat-value" id="profileTotal">0</div>
+            <div class="rule-card">
+                <div class="rule-title">ROUND STRUCTURE</div>
+                <ul class="round-structure">
+                    <li><span class="round-indicator"></span> Constructive · 90s</li>
+                    <li><span class="round-indicator"></span> Rebuttal · 75s</li>
+                    <li><span class="round-indicator"></span> Closing · 60s</li>
+                </ul>
+                <div style="margin-top: 1rem; font-size: 0.8rem; color: #8a8aaa;">
+                    ⚡ Blitz mode: 60s per round
+                </div>
             </div>
-            <div class="stat-item">
-              <div class="stat-label">Wins</div>
-              <div class="stat-value" id="profileWins">0</div>
+        </div>
+        <!-- Sovereign Stack Footer -->
+        <div class="stack-footer">
+            <div class="stack-item">
+                <div class="pulse"></div>
+                <span>Ma'at Engine · constitutional enforcement active</span>
             </div>
-            <div class="stat-item">
-              <div class="stat-label">Win Streak</div>
-              <div class="stat-value" id="profileStreak">0</div>
+            <div class="stack-item">
+                <span style="font-family: monospace;">Symphony-AION · session audit</span>
             </div>
-            <div class="stat-item">
-              <div class="stat-label">Influence</div>
-              <div class="stat-value" id="profileInfluence">0</div>
+            <div class="stack-item">
+                <div class="orada-qr"></div>
+                <span>ORDA Registry · public verifiable</span>
             </div>
-          </div>
         </div>
-
-        <div class="card">
-          <h3>Badges</h3>
-          <div id="badgesContainer" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
-            <span class="badge">First Debate</span>
-          </div>
+        <!-- Offline resilience indicator -->
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem; gap: 0.5rem;">
+            <span style="background: rgba(0,0,0,0.3); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; color: #4f9fff;">📶 arguments cached locally</span>
         </div>
-
-        <div class="card">
-          <h3>Settings</h3>
-          <div class="form-group">
-            <label>Change Player Name</label>
-            <input type="text" id="playerNameInput" placeholder="Enter your name...">
-            <button onclick="app.updatePlayerName()">Save Name</button>
-          </div>
-
-          <div class="form-group">
-            <label>Rhetoric Class</label>
-            <select id="classSettingSelect">
-              <option value="diplomat">Diplomat - Persuasion through empathy</option>
-              <option value="warrior">Warrior - Aggressive deconstruction</option>
-              <option value="scholar">Scholar - Logic and evidence</option>
-              <option value="sage">Sage - Philosophical depth</option>
-            </select>
-            <button onclick="app.updatePlayerClass()">Update Class</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Oracle Screen -->
-      <div id="oracle" class="screen">
-        <div class="card">
-          <h2>The Oracle</h2>
-          <p style="color: var(--dim-text); margin-bottom: 1.5rem;">Gain mystical insights into your debate performance and strategy. Debates until Oracle unlock: <strong id="oracleProgress">5</strong></p>
-
-          <div class="form-group">
-            <label>Ask the Oracle</label>
-            <textarea id="oracleQuestion" placeholder="What would you like to know about your debates?" rows="4"></textarea>
-          </div>
-
-          <button onclick="app.askOracle()">Consult the Oracle</button>
-          <div id="oracleStatus"></div>
-          <div id="oracleResponse"></div>
-        </div>
-
-        <div class="card">
-          <h3>Previous Oracle Insights</h3>
-          <div id="oraclePreviousInsights"></div>
-        </div>
-      </div>
-
-      <!-- Underground Screen -->
-      <div id="underground" class="screen">
-        <div class="card">
-          <h2>The Underground</h2>
-          <p style="color: var(--dim-text); margin-bottom: 1.5rem;" id="undergroundStatus">Complete 5 debates and talk to the Oracle to unlock the Underground network.</p>
-
-          <div class="depth-meter">
-            <div class="depth-label">Depth of Underground Access</div>
-            <div class="depth-bar">
-              <div class="depth-fill" id="depthFill" style="width: 0%;"></div>
-            </div>
-          </div>
-
-          <h3 id="undergroundTopicsTitle" style="display: none;">Underground Topics</h3>
-          <div id="undergroundTopics" class="grid-2" style="margin-top: 1.5rem;"></div>
-
-          <h3 id="oraclesLineTitle" style="display: none; margin-top: 2rem;">The Oracle's Line</h3>
-          <div id="oraclesLine" class="oracle-line" style="display: none;">
-            <p class="oracle-message" id="oraclesLineMessage">Debate in the Underground to unlock the Oracle's ultimate insights...</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- School Screen -->
-      <div id="school" class="screen">
-        <div class="card">
-          <h2>Debate School</h2>
-          <p style="margin-bottom: 1.5rem;">Master the art of debate with school-safe topics and professional format. Activate school mode to see only appropriate debates.</p>
-
-          <div class="form-group">
-            <label>
-              <input type="checkbox" id="schoolToggle" onchange="app.toggleSchoolMode()">
-              <span style="margin-left: 0.5rem; color: var(--teal);">Enable School Mode (Safe Content)</span>
-            </label>
-          </div>
-
-          <div style="margin-top: 2rem;">
-            <h3>Available Formats</h3>
-            <div class="grid-2">
-              <div class="card" style="background: rgba(45, 106, 246, 0.1); border: 1px solid var(--teal);">
-                <h4>Lincoln-Douglas Debate</h4>
-                <p style="color: var(--dim-text); font-size: 0.95rem;">1v1 value-focused debate with constructive and rebuttal speeches</p>
-                <button style="width: 100%;">Learn More</button>
-              </div>
-              <div class="card" style="background: rgba(45, 106, 246, 0.1); border: 1px solid var(--teal);">
-                <h4>Policy Debate</h4>
-                <p style="color: var(--dim-text); font-size: 0.95rem;">2v2 proposition vs opposition with evidence cards</p>
-                <button style="width: 100%;">Learn More</button>
-              </div>
-              <div class="card" style="background: rgba(45, 106, 246, 0.1); border: 1px solid var(--teal);">
-                <h4>Public Forum</h4>
-                <p style="color: var(--dim-text); font-size: 0.95rem;">Contemporary issues debate accessible to all levels</p>
-                <button style="width: 100%;">Learn More</button>
-              </div>
-              <div class="card" style="background: rgba(45, 106, 246, 0.1); border: 1px solid var(--teal);">
-                <h4>Debate Theory</h4>
-                <p style="color: var(--dim-text); font-size: 0.95rem;">Master logical fallacies, argumentation, and rhetoric fundamentals</p>
-                <button style="width: 100%;">Learn More</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
-
-  <!-- Toast Notification Container -->
-  <div class="toast-container" id="toastContainer"></div>
-
-  <!-- Modal Overlay -->
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal" id="modal">
-      <h2 id="modalTitle">Modal Title</h2>
-      <div id="modalContent"></div>
-      <div class="modal-buttons">
-        <button class="button-secondary" onclick="app.closeModal()">Cancel</button>
-        <button onclick="app.confirmModal()">Confirm</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Application State and Logic
-    const app = {
-      // Game state
-      state: {
-        playerName: 'Debater',
-        rhetoricsClass: 'diplomat',
-        archetype: 'prosecutor',
-        influence: 0,
-        debates: 0,
-        wins: 0,
-        losses: 0,
-        streak: 0,
-        badges: ['First Debate'],
-        oracleLine: [],
-        undergroundUnlocked: false,
-        debatesForOracle: 0,
-        undergroundDebates: 0,
-        currentTopic: '',
-        currentPosition: '',
-        debateResult: null,
-      },
-
-      // Initialize app
-      init() {
-        this.loadProfile();
-        this.setupEventListeners();
-        this.renderProfile();
-      },
-
-      // localStorage management
-      loadProfile() {
-        const saved = localStorage.getItem('dc_profile');
-        if (saved) {
-          this.state = { ...this.state, ...JSON.parse(saved) };
-        }
-      },
-
-      saveProfile() {
-        localStorage.setItem('dc_profile', JSON.stringify(this.state));
-      },
-
-      // Navigation
-      navigateTo(screenId) {
-        const screens = document.querySelectorAll('.screen');
-        const navBtns = document.querySelectorAll('.nav-btn');
-
-        screens.forEach(s => s.classList.remove('active'));
-        navBtns.forEach(b => b.classList.remove('active'));
-
-        const screen = document.getElementById(screenId);
-        if (screen) {
-          screen.classList.add('active');
-          const btn = document.querySelector(`[data-screen="${screenId}"]`);
-          if (btn) btn.classList.add('active');
-        }
-
-        if (screenId === 'battle') {
-          this.initBattle();
-        } else if (screenId === 'profile') {
-          this.renderProfile();
-        } else if (screenId === 'oracle') {
-          this.renderOracle();
-        } else if (screenId === 'underground') {
-          this.renderUnderground();
-        }
-      },
-
-      // Event listeners setup
-      setupEventListeners() {
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            this.navigateTo(e.target.dataset.screen);
-          });
-        });
-
-        document.getElementById('themeToggle').addEventListener('click', () => {
-          document.body.classList.toggle('light-mode');
-          const isDark = !document.body.classList.contains('light-mode');
-          localStorage.setItem('theme', isDark ? 'dark' : 'light');
-          document.getElementById('themeToggle').textContent = isDark ? 'Light' : 'Dark';
-        });
-
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        if (savedTheme === 'light') {
-          document.body.classList.add('light-mode');
-          document.getElementById('themeToggle').textContent = 'Dark';
-        }
-      },
-
-      // Start debate flow
-      async startDebate() {
-        const topic = document.getElementById('topicSelect').value;
-        const position = document.getElementById('positionSelect').value;
-        const rhetoricsClass = document.getElementById('classSelect').value;
-        const archetype = document.getElementById('archetypeSelect').value;
-
-        if (!topic) {
-          this.showToast('Please select a topic', 'error');
-          return;
-        }
-
-        this.state.currentTopic = topic;
-        this.state.currentPosition = position;
-        this.state.rhetoricsClass = rhetoricsClass;
-        this.state.archetype = archetype;
-
-        this.navigateTo('cabinet');
-        this.startCabinetTimer();
-      },
-
-      // Cabinet timer
-      startCabinetTimer() {
-        console.log('[Shadow Cabinet] Cabinet loaded. Ready to generate cards.');
-        console.log('[Shadow Cabinet] Topic:', this.state.currentTopic);
-        console.log('[Shadow Cabinet] Position:', this.state.currentPosition);
-        console.log('[Shadow Cabinet] Archetype:', this.state.archetype);
-
-        let timeLeft = 30;
-        const timer = document.getElementById('cabinetTimer');
-        const interval = setInterval(() => {
-          timeLeft--;
-          timer.textContent = timeLeft + 's';
-          if (timeLeft <= 10) {
-            timer.parentElement.classList.add('warning');
-          }
-          if (timeLeft <= 0) {
-            clearInterval(interval);
-            this.showToast('Cabinet prep time ended', 'warning');
-          }
-        }, 1000);
-      },
-
-      // Generate argument cards
-      async generateCard(type) {
-        const btnId = type + 'Btn';
-        const btn = document.getElementById(btnId);
-        if (btn) btn.disabled = true;
-
-        const requestPayload = {
-          action: 'shadow_cabinet',
-          topic: this.state.currentTopic,
-          position: this.state.currentPosition,
-          cardType: type,
-        };
-
-        console.log(`[Shadow Cabinet] Generating ${type} card...`);
-        console.log('[Shadow Cabinet] Request:', requestPayload);
-
-        try {
-          const response = await fetch('/api/debate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestPayload),
-          });
-
-          console.log(`[Shadow Cabinet] Response status: ${response.status}`);
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`[Shadow Cabinet] HTTP ${response.status} error:`, errorText);
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
-          }
-
-          const data = await response.json();
-          console.log(`[Shadow Cabinet] Response data:`, data);
-
-          // Check for API error response
-          if (data.error) {
-            console.error(`[Shadow Cabinet] API error: ${data.error}`);
-            this.showToast(`❌ Error: ${data.error}`, 'error');
-            return;
-          }
-
-          const cardHtml = `
-            <div class="power-card" onclick="app.appendCard(this)">
-              <h5>${type.toUpperCase()}</h5>
-              <p>${data.argument || 'Sample argument'}</p>
-              <small style="color: var(--gold); cursor: pointer;">Click to add →</small>
-            </div>
-          `;
-          document.getElementById('generatedCards').innerHTML += cardHtml;
-          this.showToast(`✅ ${type} card generated`, 'success');
-        } catch (error) {
-          console.error(`[Shadow Cabinet] Fetch error:`, error);
-          this.showToast(`❌ Error: ${error.message}`, 'error');
-        } finally {
-          if (btn) btn.disabled = false;
-        }
-      },
-
-      // Append card to input
-      appendCard(cardEl) {
-        const text = cardEl.querySelector('p').textContent;
-        const input = document.getElementById('argumentInput');
-        input.value += (input.value ? '\n\n' : '') + text;
-      },
-
-      // Enter battle
-      enterBattle() {
-        const argument = document.getElementById('argumentInput').value;
-        if (!argument.trim()) {
-          this.showToast('Please write an argument', 'error');
-          return;
-        }
-        this.state.debateResult = { userArgument: argument };
-        this.navigateTo('battle');
-      },
-
-      // Initialize battle
-      initBattle() {
-        this.initVoters();
-        this.initPowerCards();
-        this.startBattleTimer();
-        document.getElementById('battleTopic').textContent = this.state.currentTopic.replace(/-/g, ' ');
-      },
-
-      // Initialize voters
-      initVoters() {
-        const voters = ['Judge Luna', 'Judge Phoenix', 'Judge Storm', 'Judge Sage', 'Judge Echo'];
-        const swarm = document.getElementById('voterSwarm');
-        swarm.innerHTML = voters.map(name => `
-          <div class="voter">
-            <div class="voter-name">${name}</div>
-            <div class="voter-score">0</div>
-          </div>
-        `).join('');
-      },
-
-      // Initialize power cards
-      initPowerCards() {
-        const cards = [
-          { name: 'FLIP', desc: 'Reverse opponent logic' },
-          { name: 'FACT CHECK', desc: 'Challenge source' },
-          { name: 'MIRROR', desc: 'Reflect argument' },
-          { name: 'AMPLIFY', desc: 'Boost one point' },
-          { name: 'RECESS', desc: 'Stall time' },
-          { name: 'SILENCE', desc: 'Counter opponent' },
-        ];
-        const container = document.getElementById('powerCards');
-        container.innerHTML = cards.map((card, i) => `
-          <div class="power-card" onclick="app.usePowerCard(this, '${card.name}')">
-            <h5>${card.name}</h5>
-            <p style="font-size: 0.8rem;">${card.desc}</p>
-          </div>
-        `).join('');
-      },
-
-      // Use power card
-      usePowerCard(el, cardName) {
-        if (el.classList.contains('used')) return;
-        el.classList.add('used');
-        this.showToast(`${cardName} activated!`, 'success');
-      },
-
-      // Battle timer
-      startBattleTimer() {
-        let timeLeft = 60;
-        const timer = document.getElementById('battleTimer');
-        const interval = setInterval(() => {
-          timeLeft--;
-          timer.textContent = timeLeft + 's';
-          if (timeLeft <= 15) {
-            timer.classList.add('warning');
-          }
-          if (timeLeft <= 0) {
-            clearInterval(interval);
-            this.finishRound();
-          }
-        }, 1000);
-      },
-
-      // Submit argument
-      async submitArgument() {
-        const input = document.getElementById('battleInput');
-        const argument = input.value.trim();
-
-        if (!argument) {
-          this.showToast('Please enter an argument', 'error');
-          return;
-        }
-
-        // Add to user feed
-        const userFeed = document.getElementById('userArgumentFeed');
-        userFeed.innerHTML += `
-          <div class="argument-item user">
-            <p>${argument}</p>
-            <div class="argument-time">Just now</div>
-          </div>
-        `;
-        input.value = '';
-
-        // Get AI response
-        try {
-          const response = await fetch('/api/debate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'ai_argument',
-              topic: this.state.currentTopic,
-              userArgument: argument,
-              opponentPosition: this.state.currentPosition === 'for' ? 'against' : 'for',
-            }),
-          });
-
-          if (!response.ok) throw new Error('Failed to get AI argument');
-          const data = await response.json();
-
-          const aiFeed = document.getElementById('aiArgumentFeed');
-          aiFeed.innerHTML += `
-            <div class="argument-item ai">
-              <p>${data.argument || 'Opponent argument'}</p>
-              <div class="argument-time">Just now</div>
-            </div>
-          `;
-
-          this.updateTensionRope();
-          this.updateVoterScores();
-        } catch (error) {
-          this.showToast('Error getting opponent argument', 'error');
-        }
-      },
-
-      // Update tension rope
-      updateTensionRope() {
-        const bar = document.getElementById('tensionBar');
-        const current = parseFloat(bar.style.width) || 50;
-        const newWidth = Math.max(20, Math.min(80, current + (Math.random() - 0.5) * 20));
-        bar.style.width = newWidth + '%';
-      },
-
-      // Update voter scores
-      updateVoterScores() {
-        const voters = document.querySelectorAll('.voter-score');
-        voters.forEach(voter => {
-          const current = parseInt(voter.textContent);
-          voter.textContent = Math.min(100, current + Math.floor(Math.random() * 15) + 5);
-        });
-      },
-
-      // Finish round
-      finishRound() {
-        const round = parseInt(document.getElementById('currentRound').textContent);
-        if (round < 3) {
-          document.getElementById('currentRound').textContent = round + 1;
-          this.startBattleTimer();
-        } else {
-          this.showToast('Battle complete!', 'success');
-          setTimeout(() => this.endBattle(), 1500);
-        }
-      },
-
-      // End battle
-      async endBattle() {
-        try {
-          const response = await fetch('/api/debate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'debrief',
-              topic: this.state.currentTopic,
-              userPosition: this.state.currentPosition,
-            }),
-          });
-
-          if (!response.ok) throw new Error('Failed to get debrief');
-          const data = await response.json();
-
-          this.state.debates++;
-          this.state.wins++;
-          this.state.streak++;
-          this.state.influence += 50;
-          this.state.debatesForOracle++;
-          this.saveProfile();
-
-          document.getElementById('debriefContent').innerHTML = data.debrief || 'Great debate!';
-          this.navigateTo('results');
-        } catch (error) {
-          this.showToast('Error ending battle', 'error');
-        }
-      },
-
-      // Render profile
-      renderProfile() {
-        document.getElementById('playerName').textContent = this.state.playerName;
-        document.getElementById('playerClass').textContent = this.state.rhetoricsClass.charAt(0).toUpperCase() + this.state.rhetoricsClass.slice(1);
-        document.getElementById('profileTotal').textContent = this.state.debates;
-        document.getElementById('profileWins').textContent = this.state.wins;
-        document.getElementById('profileStreak').textContent = this.state.streak;
-        document.getElementById('profileInfluence').textContent = this.state.influence;
-        document.getElementById('playerNameInput').value = this.state.playerName;
-        document.getElementById('classSettingSelect').value = this.state.rhetoricsClass;
-        document.getElementById('badgesContainer').innerHTML = this.state.badges.map(b => `<span class="badge">${b}</span>`).join('');
-      },
-
-      // Update player name
-      updatePlayerName() {
-        const name = document.getElementById('playerNameInput').value.trim();
-        if (!name) {
-          this.showToast('Please enter a name', 'error');
-          return;
-        }
-        this.state.playerName = name;
-        this.saveProfile();
-        this.renderProfile();
-        this.showToast('Name updated!', 'success');
-      },
-
-      // Update player class
-      updatePlayerClass() {
-        this.state.rhetoricsClass = document.getElementById('classSettingSelect').value;
-        this.saveProfile();
-        this.renderProfile();
-        this.showToast('Class updated!', 'success');
-      },
-
-      // Render oracle
-      renderOracle() {
-        const remaining = Math.max(0, 5 - this.state.debatesForOracle);
-        document.getElementById('oracleProgress').textContent = remaining;
-        document.getElementById('oraclePreviousInsights').innerHTML = this.state.oracleLine
-          .map(line => `<div class="oracle-line"><p class="oracle-message">"${line}"</p></div>`)
-          .join('') || '<p style="color: var(--dim-text);">No insights yet. Complete debates to unlock Oracle wisdom.</p>';
-      },
-
-      // Ask oracle
-      async askOracle() {
-        if (this.state.debatesForOracle < 5) {
-          this.showToast('Complete 5 debates to unlock the Oracle', 'warning');
-          return;
-        }
-
-        const question = document.getElementById('oracleQuestion').value.trim();
-        if (!question) {
-          this.showToast('Please ask the Oracle something', 'error');
-          return;
-        }
-
-        try {
-          const response = await fetch('/api/debate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'oracle',
-              question: question,
-              playerStats: this.state,
-            }),
-          });
-
-          if (!response.ok) throw new Error('Oracle failed to respond');
-          const data = await response.json();
-
-          const insight = data.insight || 'The Oracle is silent...';
-          this.state.oracleLine.push(insight);
-          this.state.undergroundUnlocked = true;
-          this.saveProfile();
-
-          document.getElementById('oracleResponse').innerHTML = `
-            <div class="oracle-line" style="margin-top: 1.5rem;">
-              <p class="oracle-message">"${insight}"</p>
-            </div>
-          `;
-
-          this.showToast('Oracle has spoken! Underground unlocked!', 'success');
-        } catch (error) {
-          this.showToast('Oracle communication failed', 'error');
-        }
-      },
-
-      // Render underground
-      renderUnderground() {
-        if (!this.state.undergroundUnlocked) {
-          document.getElementById('undergroundStatus').textContent = 'You must talk to the Oracle to unlock the Underground.';
-          document.getElementById('undergroundTopicsTitle').style.display = 'none';
-          document.getElementById('oraclesLineTitle').style.display = 'none';
-          document.getElementById('oraclesLine').style.display = 'none';
-          return;
-        }
-
-        document.getElementById('undergroundStatus').textContent = 'Welcome to the Underground. Forbidden debates await.';
-        document.getElementById('undergroundTopicsTitle').style.display = 'block';
-
-        const undergroundTopics = [
-          { id: 'deep1', name: 'The Nature of Consciousness', depth: 30 },
-          { id: 'deep2', name: 'AI Rights and Personhood', depth: 50 },
-          { id: 'deep3', name: 'Post-Human Ethics', depth: 70 },
-        ];
-
-        document.getElementById('undergroundTopics').innerHTML = undergroundTopics.map(topic => `
-          <div class="card" style="background: rgba(232, 54, 74, 0.1); border: 1px solid var(--red);">
-            <h4>${topic.name}</h4>
-            <p style="color: var(--dim-text); font-size: 0.9rem;">Depth Level: ${topic.depth}%</p>
-            <button onclick="app.startUndergroundDebate('${topic.id}')" class="button-secondary">Enter</button>
-          </div>
-        `).join('');
-
-        if (this.state.undergroundDebates >= 10) {
-          document.getElementById('oraclesLineTitle').style.display = 'block';
-          document.getElementById('oraclesLine').style.display = 'block';
-          document.getElementById('oraclesLineMessage').textContent = 'You have glimpsed the Oracle\'s ultimate truth. The line between debate and revelation blurs...';
-        }
-
-        const depthPercent = Math.min(100, (this.state.undergroundDebates / 10) * 100);
-        document.getElementById('depthFill').style.width = depthPercent + '%';
-      },
-
-      // Start underground debate
-      startUndergroundDebate(topicId) {
-        this.state.currentTopic = topicId;
-        this.state.undergroundDebates++;
-        this.saveProfile();
-        this.navigateTo('cabinet');
-      },
-
-      // Toggle school mode
-      toggleSchoolMode() {
-        const enabled = document.getElementById('schoolToggle').checked;
-        if (enabled) {
-          document.body.classList.add('school');
-          localStorage.setItem('schoolMode', 'true');
-          this.showToast('School Mode Enabled', 'success');
-        } else {
-          document.body.classList.remove('school');
-          localStorage.setItem('schoolMode', 'false');
-          this.showToast('School Mode Disabled', 'warning');
-        }
-      },
-
-      // Toast notifications
-      showToast(message, type = 'info') {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `<p>${message}</p>`;
-        container.appendChild(toast);
-
-        setTimeout(() => {
-          toast.remove();
-        }, 4000);
-      },
-
-      // Modal management
-      showModal(title, content, onConfirm) {
-        document.getElementById('modalTitle').textContent = title;
-        document.getElementById('modalContent').innerHTML = content;
-        document.getElementById('modalOverlay').classList.add('active');
-        this.modalCallback = onConfirm;
-      },
-
-      closeModal() {
-        document.getElementById('modalOverlay').classList.remove('active');
-      },
-
-      confirmModal() {
-        if (this.modalCallback) this.modalCallback();
-        this.closeModal();
-      },
-    };
-
-    // Initialize app on load
-    document.addEventListener('DOMContentLoaded', () => {
-      app.init();
-    });
-  </script>
 </body>
 </html>
