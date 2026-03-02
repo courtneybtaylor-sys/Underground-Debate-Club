@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0a0e27;
+  --foreground: #f1f5f9;
+  --primary: #10b981;
+  --primary-dark: #059669;
+  --secondary: #8b5cf6;
+  --accent: #f59e0b;
+  --border: #1e293b;
+  --card: #111827;
+  --card-foreground: #e2e8f0;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html.school {
+  --background: #f0f4f8;
+  --foreground: #0f172a;
+  --primary: #3b82f6;
+  --primary-dark: #1d4ed8;
+  --secondary: #8b5cf6;
+  --accent: #f59e0b;
+  --border: #cbd5e1;
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+}
+
+html.underground {
+  --background: #1a0a2e;
+  --foreground: #e0c3fc;
+  --primary: #c084fc;
+  --primary-dark: #a855f7;
+  --secondary: #7c3aed;
+  --accent: #ec4899;
+  --border: #5b21b6;
+  --card: #2d1b4e;
+  --card-foreground: #e9d5ff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+button {
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease-in-out;
+}
+
+input, textarea {
+  font-family: var(--font-sans);
+}

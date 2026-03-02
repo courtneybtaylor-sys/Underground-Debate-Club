@@ -1,18 +1,26 @@
 {
   "name": "underground-debate-club",
-  "version": "1.0.0",
-  "description": "A platform for debate and discussion",
-  "type": "module",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "build:ui": "tsc src/ui/index.ts --outDir dist --declaration",
-    "build": "npm run build:ui",
-    "dev": "node api/debate.ts",
-    "start": "node dist/index.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.37.0"
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "next": "^15.1.6",
+    "@anthropic-ai/sdk": "^0.37.0",
+    "lucide-react": "^0.376.0"
   },
   "devDependencies": {
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.4.1"
   }
 }
