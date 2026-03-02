@@ -6,88 +6,155 @@ import { Badge } from "@/components/ui/Badge";
 
 interface DebateEntry {
   id: string;
+  display_name: string;
   topic: string;
-  result: "WIN" | "LOSS";
-  voterScore: string;
-  timeAgo: string;
-  player: string;
+  result: "WIN" | "LOSS" | "DRAW";
+  voters_won: number;
+  total_voters: number;
+  created_at: string;
+  timeAgo?: string;
 }
 
 const MOCK_DEBATES: DebateEntry[] = [
   {
     id: "1",
+    display_name: "Alex",
     topic: "Should AI be regulated by government?",
     result: "WIN",
-    voterScore: "Won 4/5 voters",
-    timeAgo: "2 min ago",
-    player: "Alex",
+    voters_won: 4,
+    total_voters: 5,
+    created_at: new Date(Date.now() - 2 * 60000).toISOString(),
   },
   {
     id: "2",
+    display_name: "Jordan",
     topic: "Is remote work better than office work?",
     result: "LOSS",
-    voterScore: "Lost 2/5 voters",
-    timeAgo: "5 min ago",
-    player: "Jordan",
+    voters_won: 2,
+    total_voters: 5,
+    created_at: new Date(Date.now() - 5 * 60000).toISOString(),
   },
   {
     id: "3",
+    display_name: "Casey",
     topic: "Should college be free for everyone?",
     result: "WIN",
-    voterScore: "Won 5/5 voters",
-    timeAgo: "8 min ago",
-    player: "Casey",
+    voters_won: 5,
+    total_voters: 5,
+    created_at: new Date(Date.now() - 8 * 60000).toISOString(),
   },
   {
     id: "4",
+    display_name: "Morgan",
     topic: "Is climate change humanity's biggest threat?",
     result: "WIN",
-    voterScore: "Won 3/5 voters",
-    timeAgo: "11 min ago",
-    player: "Morgan",
+    voters_won: 3,
+    total_voters: 5,
+    created_at: new Date(Date.now() - 11 * 60000).toISOString(),
   },
   {
     id: "5",
+    display_name: "Riley",
     topic: "Should social media be regulated?",
     result: "LOSS",
-    voterScore: "Lost 1/5 voters",
-    timeAgo: "15 min ago",
-    player: "Riley",
+    voters_won: 1,
+    total_voters: 5,
+    created_at: new Date(Date.now() - 15 * 60000).toISOString(),
   },
   {
     id: "6",
+    display_name: "Sam",
     topic: "Is capitalism sustainable long-term?",
     result: "WIN",
-    voterScore: "Won 4/5 voters",
-    timeAgo: "18 min ago",
-    player: "Sam",
+    voters_won: 4,
+    total_voters: 5,
+    created_at: new Date(Date.now() - 18 * 60000).toISOString(),
   },
   {
     id: "7",
+    display_name: "Taylor",
     topic: "Should universities focus on practical skills?",
     result: "LOSS",
-    voterScore: "Lost 3/5 voters",
-    timeAgo: "22 min ago",
-    player: "Taylor",
+    voters_won: 2,
+    total_voters: 5,
+    created_at: new Date(Date.now() - 22 * 60000).toISOString(),
   },
   {
     id: "8",
+    display_name: "Devon",
     topic: "Is space exploration worth the investment?",
     result: "WIN",
-    voterScore: "Won 4/5 voters",
-    timeAgo: "25 min ago",
-    player: "Devon",
+    voters_won: 4,
+    total_voters: 5,
+    created_at: new Date(Date.now() - 25 * 60000).toISOString(),
   },
 ];
+
+function formatTimeAgo(dateString: string): string {
+  const now = new Date();
+  const createdAt = new Date(dateString);
+  const diffMs = now.getTime() - createdAt.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return "just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return `${diffDays}d ago`;
+}
 
 export default function LiveDebatesTicker() {
   const [debates, setDebates] = useState<DebateEntry[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Shuffle and pick 5 random debates on mount
-    const shuffled = [...MOCK_DEBATES].sort(() => Math.random() - 0.5);
-    setDebates(shuffled.slice(0, 5));
+    const fetchRecentDebates = async () => {
+      try {
+        const response = await fetch("/api/debates/recent");
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.length > 0) {
+            // Format the data and add timeAgo
+            const formatted = data.map((d: any) => ({
+              ...d,
+              timeAgo: formatTimeAgo(d.created_at),
+            }));
+            setDebates(formatted.slice(0, 5));
+          } else {
+            // No debates in database, use mock data
+            const mockFormatted = MOCK_DEBATES.map((d) => ({
+              ...d,
+              timeAgo: formatTimeAgo(d.created_at),
+            }));
+            const shuffled = [...mockFormatted].sort(() => Math.random() - 0.5);
+            setDebates(shuffled.slice(0, 5));
+          }
+        } else {
+          // Fallback to mock data
+          const mockFormatted = MOCK_DEBATES.map((d) => ({
+            ...d,
+            timeAgo: formatTimeAgo(d.created_at),
+          }));
+          const shuffled = [...mockFormatted].sort(() => Math.random() - 0.5);
+          setDebates(shuffled.slice(0, 5));
+        }
+      } catch (error) {
+        console.log("Using mock data for debates ticker");
+        // Use mock data on error
+        const mockFormatted = MOCK_DEBATES.map((d) => ({
+          ...d,
+          timeAgo: formatTimeAgo(d.created_at),
+        }));
+        const shuffled = [...mockFormatted].sort(() => Math.random() - 0.5);
+        setDebates(shuffled.slice(0, 5));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecentDebates();
   }, []);
 
   useEffect(() => {
@@ -95,17 +162,19 @@ export default function LiveDebatesTicker() {
 
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % debates.length);
-    }, 5000); // Rotate every 5 seconds
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [debates.length]);
 
-  if (debates.length === 0) return null;
+  if (loading || debates.length === 0) return null;
+
+  const active = debates[activeIndex];
 
   return (
     <div className="space-y-3">
       <h3 className="font-bold text-sm text-foreground/70 uppercase tracking-wider">Live Debates</h3>
-      
+
       {/* Main Display Card */}
       <Card className="p-4 bg-gradient-to-r from-primary/10 to-transparent border border-primary/20">
         <div className="flex items-start justify-between gap-4">
@@ -115,22 +184,22 @@ export default function LiveDebatesTicker() {
               <span className="text-xs font-medium text-accent">LIVE</span>
             </div>
             <h4 className="font-semibold text-foreground mb-3 line-clamp-2">
-              {debates[activeIndex].topic}
+              {active.topic}
             </h4>
             <div className="space-y-2">
               <p className="text-sm text-foreground/70">
-                <span className="font-medium text-foreground">{debates[activeIndex].player}</span>
+                <span className="font-medium text-foreground">{active.display_name}</span>
                 {" "}
-                {debates[activeIndex].voterScore}
+                Won {active.voters_won}/{active.total_voters} voters
               </p>
-              <p className="text-xs text-foreground/50">{debates[activeIndex].timeAgo}</p>
+              <p className="text-xs text-foreground/50">{active.timeAgo}</p>
             </div>
           </div>
-          <Badge 
-            variant={debates[activeIndex].result === "WIN" ? "success" : "destructive"}
+          <Badge
+            variant={active.result === "WIN" ? "success" : active.result === "LOSS" ? "destructive" : "default"}
             className="whitespace-nowrap"
           >
-            {debates[activeIndex].result}
+            {active.result}
           </Badge>
         </div>
       </Card>
@@ -142,9 +211,7 @@ export default function LiveDebatesTicker() {
             key={debate.id}
             onClick={() => setActiveIndex(idx)}
             className={`w-full text-left transition-all ${
-              idx === activeIndex
-                ? "opacity-100"
-                : "opacity-60 hover:opacity-80"
+              idx === activeIndex ? "opacity-100" : "opacity-60 hover:opacity-80"
             }`}
           >
             <Card className="p-3 text-sm">
@@ -156,11 +223,17 @@ export default function LiveDebatesTicker() {
                       : debate.topic}
                   </p>
                   <p className="text-xs text-foreground/60 mt-1">
-                    {debate.player} • {debate.timeAgo}
+                    {debate.display_name} • {debate.timeAgo}
                   </p>
                 </div>
-                <Badge 
-                  variant={debate.result === "WIN" ? "success" : "destructive"}
+                <Badge
+                  variant={
+                    debate.result === "WIN"
+                      ? "success"
+                      : debate.result === "LOSS"
+                        ? "destructive"
+                        : "default"
+                  }
                   className="whitespace-nowrap text-xs"
                 >
                   {debate.result}
