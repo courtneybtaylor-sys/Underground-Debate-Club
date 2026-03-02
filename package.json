@@ -4,10 +4,10 @@
   "description": "A platform for debate and discussion",
   "type": "module",
   "scripts": {
-    "build:ui": "tsc src/ui/index.ts --outDir dist --declaration",
+    "build:ui": "tsc",
     "build": "npm run build:ui",
     "dev": "node api/debate.ts",
-    "start": "node dist/index.js"
+    "start": "node api/health.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.37.0"

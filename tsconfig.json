@@ -2,8 +2,9 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ES2020",
-    "lib": ["ES2020"],
-    "outDir": "./dist",
+    "lib": ["ES2020", "DOM"],
+    "moduleResolution": "bundler",
+    "outDir": "./public",
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
@@ -15,5 +16,5 @@
     "sourceMap": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "public"]
 }
